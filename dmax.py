@@ -1,23 +1,42 @@
 import requests
+import sys
+import os
 
-api_url = "https://<url of dmax>/"
+
+myfile = sys.argv[1]
+
+print(myfile)
+
+api_url = "<url>"
+apikey = "<apikey>"
 headers = {
-    "apikey": "<apikey>",
-    "filename" : "<filename>"
+    "apikey": apikey
+    "filename" : myfile
 }
-with open('2.pdf', 'rb') as f:
+with open(myfile, 'rb') as f:
     response = requests.post(api_url + "avsanitizesync",headers=headers, data=f)
 
-dataid = response.json()["data_id"]
 
-headers = {
-    "apikey": "<apikey>",
-    "dataid" : dataid
-}
+myrest = response.json()["result"]
 
-response = requests.get(api_url + "getcleanfile",headers=headers)
+#print(myrest)
+
+if myrest > 0:
+    print("infected")
+    os.remove(myfile)
+
+else:
+
+    dataid = response.json()["data_id"]
+
+    headers = {
+        "apikey": apikey,
+        "dataid" : dataid
+    }
+
+    response = requests.get(api_url + "getcleanfile",headers=headers)
 
 
-if response.status_code == 200:
-    with open('<new filename>', 'wb') as f:
-        f.write(response.content)
+    if response.status_code == 200:
+        with open(myfile, 'wb') as f:
+            f.write(response.content)
